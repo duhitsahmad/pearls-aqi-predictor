@@ -1,4 +1,7 @@
-# Virtual environment
+.DS_Store
+Thumbs.db
+
+# Python virtual environment
 .venv/
 venv/
 env/
@@ -6,52 +9,22 @@ env/
 # Python cache
 __pycache__/
 *.py[cod]
-*$py.class
-
-# Jupyter Notebook
-.ipynb_checkpoints/
 
 # Environment variables and secrets
 .env
 .env.*
 !.env.example
 
-# Data files
-*.csv
-*.xlsx
-*.xls
-*.parquet
-
-# Machine learning models
-*.pkl
-*.joblib
-*.h5
-*.keras
-*.pt
-*.pth
-
-# Logs
-*.log
-logs/
-
-# Test and coverage
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Ruff
-.ruff_cache/
-
-# VS Code
-.vscode/
-
-# OS files
-.DS_Store
-Thumbs.db
+# Python build metadata
+src/*.egg-info/
+*.egg-info/
 
 # Temporary files
 *.tmp
 *.temp
-# Python build metadata
-src/*.egg-info/
 
+# Local model artifacts
+models/local/
+
+# Streamlit
+.streamlit/secrets.toml
