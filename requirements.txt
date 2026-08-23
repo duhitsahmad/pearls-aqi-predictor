@@ -1,0 +1,12 @@
+Flask
+flask-cors
+requests
+pandas
+numpy
+scikit-learn
+joblib
+streamlit
+shap
+openmeteo-requests
+requests-cache
+retry-requests
