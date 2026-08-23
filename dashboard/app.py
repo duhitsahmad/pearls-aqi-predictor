@@ -211,7 +211,7 @@ if st.button(
     type="primary",
     use_container_width=True,
 ):
-    api_url = "http://127.0.0.1:5000/predict"
+    api_url = "https://pearls-aqi-api-brgjbtg8g4a7hsej.centralindia-01.azurewebsites.net/predict"
 
     payload = {
         "city": city,
@@ -383,7 +383,7 @@ if st.button(
     "🌐 Get Live AQI Prediction",
     use_container_width=True,
 ):
-    live_api_url = "http://127.0.0.1:5000/predict-live"
+    live_api_url = "https://pearls-aqi-api-brgjbtg8g4a7hsej.centralindia-01.azurewebsites.net/predict-live"
 
     try:
         live_response = requests.get(
