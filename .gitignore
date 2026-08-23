@@ -52,3 +52,6 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+# Python build metadata
+src/*.egg-info/
+
