@@ -1,11 +1,21 @@
 import requests
 import streamlit as st
 
+
+# ============================================================
+# PAGE CONFIGURATION
+# ============================================================
+
 st.set_page_config(
     page_title="Pearls AQI Predictor",
     page_icon="🌍",
     layout="wide",
 )
+
+
+# ============================================================
+# PAGE TITLE
+# ============================================================
 
 st.title("🌍 Pearls AQI Predictor")
 st.subheader("Next-Hour Air Quality Prediction for Pakistan")
@@ -18,6 +28,11 @@ st.markdown(
 )
 
 st.divider()
+
+
+# ============================================================
+# PREDICTION INPUTS
+# ============================================================
 
 st.header("📍 Prediction Inputs")
 
@@ -42,13 +57,13 @@ with col1:
 
     latitude = st.number_input(
         "Latitude",
-        value=31.5204,
+        value=31.4167,
         format="%.4f",
     )
 
     longitude = st.number_input(
         "Longitude",
-        value=74.3587,
+        value=73.0833,
         format="%.4f",
     )
 
@@ -74,19 +89,34 @@ with col2:
         value=2026,
     )
 
+
 st.divider()
+
+
+# ============================================================
+# AIR QUALITY MEASUREMENTS
+# ============================================================
 
 st.header("🌫️ Air Quality Measurements")
 
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    pm10 = st.number_input("PM10", value=100.0)
-    pm2_5 = st.number_input("PM2.5", value=80.0)
+    pm10 = st.number_input(
+        "PM10",
+        value=100.0,
+    )
+
+    pm2_5 = st.number_input(
+        "PM2.5",
+        value=80.0,
+    )
+
     carbon_monoxide = st.number_input(
         "Carbon Monoxide",
         value=1000.0,
     )
+
 
 with col2:
     nitrogen_dioxide = st.number_input(
@@ -104,6 +134,7 @@ with col2:
         value=30.0,
     )
 
+
 with col3:
     dust = st.number_input(
         "Dust",
@@ -120,7 +151,13 @@ with col3:
         value=60.0,
     )
 
+
 st.divider()
+
+
+# ============================================================
+# WEATHER MEASUREMENTS
+# ============================================================
 
 st.header("🌦️ Weather Measurements")
 
@@ -132,11 +169,13 @@ with col1:
         value=0.0,
     )
 
+
 with col2:
     wind_speed = st.number_input(
         "Wind Speed",
         value=5.0,
     )
+
 
 with col3:
     wind_direction = st.number_input(
@@ -146,12 +185,19 @@ with col3:
         value=180.0,
     )
 
+
 pressure = st.number_input(
     "Pressure",
     value=1010.0,
 )
 
+
 st.divider()
+
+
+# ============================================================
+# TIME INFORMATION
+# ============================================================
 
 st.header("🕐 Time Information")
 
@@ -168,6 +214,7 @@ day_of_week = st.selectbox(
     ],
 )
 
+
 month_names = {
     1: "January",
     2: "February",
@@ -183,12 +230,14 @@ month_names = {
     12: "December",
 }
 
+
 month_name = month_names[month]
+
 
 is_weekend = 1 if day_of_week in {"Saturday", "Sunday"} else 0
 
+
 season_map = {
-    12: "Winter",
     1: "Winter",
     2: "Winter",
     3: "Spring",
@@ -200,18 +249,29 @@ season_map = {
     9: "Autumn",
     10: "Autumn",
     11: "Autumn",
+    12: "Winter",
 }
+
 
 season = season_map[month]
 
+
 st.divider()
+
+
+# ============================================================
+# MANUAL AQI PREDICTION
+# ============================================================
 
 if st.button(
     "🔮 Predict Next-Hour AQI",
     type="primary",
     use_container_width=True,
 ):
-    api_url = "https://pearls-aqi-api-brgjbtg8g4a7hsej.centralindia-01.azurewebsites.net/predict"
+    api_url = (
+        "https://pearls-aqi-api-brgjbtg8g4a7hsej."
+        "centralindia-01.azurewebsites.net/predict"
+    )
 
     payload = {
         "city": city,
@@ -249,25 +309,24 @@ if st.button(
         if response.status_code == 200:
             result = response.json()
 
-            prediction = result["prediction"]
-            probabilities = result.get("probabilities", {})
+            prediction = result.get(
+                "prediction",
+                "Unknown",
+            )
+
+            probabilities = result.get(
+                "probabilities",
+                {},
+            )
 
             descriptions = {
                 "Good": "Air quality is considered satisfactory.",
-                "Moderate": (
-                    "Air quality is acceptable, but some pollutants "
-                    "may affect sensitive individuals."
-                ),
-                "Unhealthy for Sensitive Groups": (
-                    "Sensitive groups may experience health effects."
-                ),
-                "Unhealthy": ("Everyone may begin to experience health effects."),
-                "Very Unhealthy": (
-                    "Health alert: the risk of health effects is increased."
-                ),
-                "Hazardous": (
-                    "Health emergency conditions. Everyone is likely to be affected."
-                ),
+                "Moderate": "Air quality is acceptable, but some "
+                "pollutants may affect sensitive individuals.",
+                "Unhealthy for Sensitive Groups": "Sensitive groups may experience health effects.",
+                "Unhealthy": "Everyone may begin to experience health effects.",
+                "Very Unhealthy": "Health alert: the risk of health effects is increased.",
+                "Hazardous": "Health emergency conditions. Everyone is likely to be affected.",
             }
 
             description = descriptions.get(
@@ -289,6 +348,7 @@ if st.button(
                     margin: 20px 0;
                     border: 2px solid #dddddd;
                 ">
+
                     <div style="
                         font-size: 18px;
                         font-weight: 600;
@@ -309,18 +369,28 @@ if st.button(
                     ">
                         {description}
                     </div>
+
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
+            # =================================================
+            # PROBABILITIES
+            # =================================================
+
             st.subheader("📊 Prediction Probabilities")
 
             for category, probability in probabilities.items():
                 st.write(f"**{category}** — {probability * 100:.1f}%")
+
                 st.progress(float(probability))
 
             st.divider()
+
+            # =================================================
+            # MODEL INFORMATION
+            # =================================================
 
             st.subheader("🤖 Model Information")
 
@@ -352,38 +422,48 @@ if st.button(
 
             try:
                 st.json(response.json())
+
             except ValueError:
                 st.write(response.text)
 
     except requests.exceptions.ConnectionError:
         st.error(
             "Unable to connect to the AQI prediction API. "
-            "Make sure the Flask API is running on "
-            "http://127.0.0.1:5000."
+            "Please check that the Azure API is running and try again."
         )
 
     except requests.exceptions.Timeout:
-        st.error(
-            "The API request timed out. Please make sure the Flask API is running."
-        )
+        st.error("The API request timed out. Please try again.")
 
     except requests.exceptions.RequestException as exc:
         st.error(f"Request failed: {exc}")
+
+
+# ============================================================
+# LIVE AQI PREDICTION
+# ============================================================
 
 st.divider()
 
 st.subheader("🌐 Live AQI Prediction")
 
+
 live_city = st.selectbox(
     "Select City for Live Prediction",
-    ["Faisalabad"],
+    [
+        "Faisalabad",
+    ],
 )
+
 
 if st.button(
     "🌐 Get Live AQI Prediction",
     use_container_width=True,
 ):
-    live_api_url = "https://pearls-aqi-api-brgjbtg8g4a7hsej.centralindia-01.azurewebsites.net/predict-live"
+    live_api_url = (
+        "https://pearls-aqi-api-brgjbtg8g4a7hsej."
+        "centralindia-01.azurewebsites.net/predict-live"
+    )
 
     try:
         live_response = requests.get(
@@ -397,7 +477,8 @@ if st.button(
 
             st.success(
                 f"Live next-hour AQI prediction for "
-                f"{live_result['city']}: {live_result['prediction']}"
+                f"{live_result['city']}: "
+                f"{live_result['prediction']}"
             )
 
             st.metric(
@@ -405,28 +486,38 @@ if st.button(
                 live_result["prediction"],
             )
 
-            st.subheader("Live Prediction Probabilities")
+            st.subheader("📊 Live Prediction Probabilities")
 
-            for category, probability in live_result["probabilities"].items():
+            for category, probability in live_result.get("probabilities", {}).items():
                 st.write(f"**{category}** — {probability * 100:.1f}%")
+
                 st.progress(float(probability))
 
         else:
             st.error(f"Live API request failed with status {live_response.status_code}")
 
+            try:
+                st.json(live_response.json())
+
+            except ValueError:
+                st.write(live_response.text)
+
     except requests.exceptions.ConnectionError:
         st.error(
-            "Unable to connect to the AQI prediction API. "
-            "Make sure the Flask API is running on "
-            "http://127.0.0.1:5000."
+            "Unable to connect to the live AQI prediction API. "
+            "Please check that the Azure API is running and try again."
         )
 
     except requests.exceptions.Timeout:
-        st.error("The live API request timed out.")
+        st.error("The live API request timed out. Please try again.")
 
     except requests.exceptions.RequestException as exc:
         st.error(f"Live request failed: {exc}")
 
+
+# ============================================================
+# FOOTER
+# ============================================================
 
 st.divider()
 
