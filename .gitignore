@@ -23,8 +23,6 @@ src/*.egg-info/
 *.tmp
 *.temp
 
-# Local model artifacts
-models/local/
 
 # Streamlit
 .streamlit/secrets.toml
