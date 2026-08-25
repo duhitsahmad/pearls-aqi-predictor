@@ -1,0 +1,58 @@
+name: Hourly Feature Pipeline
+
+on:
+  schedule:
+    # Runs every hour at minute 0
+    - cron: '0 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  feature-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install hopsworks pandas numpy requests setuptools
+          pip install -e .
+
+      - name: Fetch live OpenWeather data & update Hopsworks
+        env:
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+        run: |
+          python -c "
+          from pearls_aqi.live.openweather import get_live_conditions
+          from pearls_aqi.data.loader import save_features_to_store
+          import pandas as pd
+
+          cities = {
+              'Faisalabad': (31.4167, 73.0833),
+              'Lahore': (31.5204, 74.3587),
+              'Islamabad': (33.6844, 73.0479),
+              'Karachi': (24.8607, 67.0011),
+              'Peshawar': (34.0151, 71.5249),
+          }
+
+          records = []
+          for city, (lat, lon) in cities.items():
+              try:
+                  records.append(get_live_conditions(city, lat, lon))
+              except Exception as e:
+                  print(f'Error fetching {city}: {e}')
+
+          if records:
+              df = pd.DataFrame(records)
+              save_features_to_store(df)
+              print('Feature store updated successfully.')
+          "
