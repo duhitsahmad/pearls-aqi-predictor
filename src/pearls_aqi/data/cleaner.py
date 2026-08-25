@@ -1,27 +1,54 @@
+import numpy as np
 import pandas as pd
 
+# Changed target to numerical AQI
+TARGET_COLUMN = "aqi"
 
-TARGET_COLUMN = "aqi_category"
-
-
-def clean_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Validate and clean the AQI dataset."""
+def create_features(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
+    """Create features for next-hour AQI prediction."""
 
     data = df.copy()
 
-    # Remove completely duplicated records.
-    data = data.drop_duplicates()
+    data["timestamp"] = pd.to_datetime(data["timestamp"])
 
-    # Ensure timestamp is a proper datetime.
-    data["timestamp"] = pd.to_datetime(data["timestamp"], errors="coerce")
+    # Sort chronologically within each city.
+    data = data.sort_values(["city", "timestamp"]).reset_index(drop=True)
 
-    # Remove rows with invalid timestamps.
-    data = data.dropna(subset=["timestamp"])
+    # ----------------------------------------------------
+    # NEW DERIVED FEATURE: AQI Change Rate
+    # Calculate percentage change from the previous hour
+    # ----------------------------------------------------
+    data["aqi_change_rate"] = data.groupby("city")[TARGET_COLUMN].pct_change().fillna(0.0)
 
-    # Ensure the target exists and is not missing.
-    if TARGET_COLUMN not in data.columns:
-        raise ValueError(f"Missing target column: {TARGET_COLUMN}")
+    # The prediction target is now the numerical AQI one hour ahead
+    data["target_next_hour"] = data.groupby("city")[TARGET_COLUMN].shift(-1)
 
-    data = data.dropna(subset=[TARGET_COLUMN])
+    # Cyclical time features.
+    data["hour_sin"] = np.sin(2 * np.pi * data["hour"] / 24)
+    data["hour_cos"] = np.cos(2 * np.pi * data["hour"] / 24)
 
-    return data.reset_index(drop=True)
+    data["month_sin"] = np.sin(2 * np.pi * data["month"] / 12)
+    data["month_cos"] = np.cos(2 * np.pi * data["month"] / 12)
+
+    # Remove rows where there is no next-hour target.
+    data = data.dropna(subset=["target_next_hour"])
+
+    target = data["target_next_hour"]
+
+    columns_to_drop = [
+        "aqi_category",     # We don't need the text category anymore
+        TARGET_COLUMN,      # Drop current AQI to prevent data leakage
+        "target_next_hour",
+        "timestamp",
+        "date",
+        "month_name",
+        "day_of_week",
+        "season",
+    ]
+    
+    # Safely drop columns only if they exist in the dataframe
+    columns_to_drop = [c for c in columns_to_drop if c in data.columns]
+    
+    features = data.drop(columns=columns_to_drop)
+
+    return features, target
