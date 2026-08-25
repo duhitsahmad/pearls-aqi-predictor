@@ -1,16 +1,14 @@
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import OneHotEncoder
-
 
 def train_model(
     features: pd.DataFrame,
     target: pd.Series,
     train_fraction: float = 0.8,
 ):
-    """Train an AQI classifier using a chronological split."""
+    """Train an AQI regressor using a chronological split."""
 
     if not 0 < train_fraction < 1:
         raise ValueError("train_fraction must be between 0 and 1.")
@@ -58,18 +56,13 @@ def train_model(
     X_train_processed = preprocessor.fit_transform(X_train)
     X_test_processed = preprocessor.transform(X_test)
 
-    model = RandomForestClassifier(
+    model = RandomForestRegressor(
         n_estimators=200,
         random_state=42,
-        class_weight="balanced",
         n_jobs=-1,
     )
 
     model.fit(X_train_processed, y_train)
-
-    predictions = model.predict(X_test_processed)
-
-    print(classification_report(y_test, predictions))
 
     return (
         model,
