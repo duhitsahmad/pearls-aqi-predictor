@@ -379,12 +379,10 @@ if st.button(
             # PROBABILITIES
             # =================================================
 
-            st.subheader("📊 Prediction Probabilities")
+if "alert" in result:
+    st.error(result["alert"])
 
-            for category, probability in probabilities.items():
-                st.write(f"**{category}** — {probability * 100:.1f}%")
-
-                st.progress(float(probability))
+st.write(f"**Predicted AQI Value:** {result.get('prediction_value', 'N/A')}")
 
             st.divider()
 
