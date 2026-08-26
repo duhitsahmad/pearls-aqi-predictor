@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flask import Flask, jsonify, request
 
-from pearls_aqi.live.openweather import (
+from src.pearls_aqi.live.openweather import (
     get_live_conditions,
     get_forecast_conditions,
 )
