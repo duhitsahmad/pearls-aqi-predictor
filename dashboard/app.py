@@ -8,7 +8,7 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Pearls AQI Predictor",
-    page_icon="🌍",
+    page_icon="🌫️",
     layout="wide",
 )
 
@@ -17,7 +17,8 @@ st.set_page_config(
 # CONFIGURATION
 # ============================================================
 
-API_URL = "http://127.0.0.1:5000"
+# LIVE DEPLOYED FLASK API
+API_URL = "https://pearls-aqi-predictor-1.onrender.com"
 
 
 CITIES = [
@@ -63,7 +64,7 @@ def check_api():
     try:
         response = requests.get(
             f"{API_URL}/health",
-            timeout=5,
+            timeout=30,
         )
 
         response.raise_for_status()
@@ -79,7 +80,7 @@ def get_live_prediction(city):
         response = requests.get(
             f"{API_URL}/predict-live",
             params={"city": city},
-            timeout=30,
+            timeout=60,
         )
 
         response.raise_for_status()
@@ -94,7 +95,10 @@ def get_live_prediction(city):
 
         return None, error_data.get(
             "details",
-            str(exc),
+            error_data.get(
+                "error",
+                str(exc),
+            ),
         )
 
     except requests.exceptions.RequestException as exc:
@@ -108,7 +112,7 @@ def get_live_prediction(city):
 # HEADER
 # ============================================================
 
-st.title("🌍 Pearls AQI Predictor")
+st.title("🌫️ Pearls AQI Predictor")
 
 st.subheader("Live Next-Hour Air Quality Prediction for Pakistan")
 
@@ -133,8 +137,12 @@ if api_status:
     st.success("🟢 Prediction API is online")
 
 else:
-    st.error(
-        "🔴 Prediction API is offline. Please start Flask with: `python api\\main.py`"
+    st.error("🔴 Prediction API is currently unavailable.")
+
+    st.info(
+        "The dashboard is connected to the deployed Render API. "
+        "Please wait a few seconds and refresh the page if the "
+        "Render service is waking up."
     )
 
     st.stop()
