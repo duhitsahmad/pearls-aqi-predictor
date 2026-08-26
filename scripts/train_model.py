@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pandas as pd
 
-from pearls_aqi.data.cleaner import clean_data
 from pearls_aqi.features.features import create_features
 from pearls_aqi.models.artifacts import save_model
 from pearls_aqi.models.classifier import train_model
@@ -27,16 +26,16 @@ def main() -> None:
 
     print(f"Raw rows: {len(df):,}")
 
-    clean = clean_data(df)
+    # The dataset is already cleaned.
+    # Do NOT import or call clean_data().
+    clean = df.copy()
 
     print(f"Clean rows: {len(clean):,}")
 
     features, target = create_features(clean)
 
     print(f"Training samples: {len(features):,}")
-
     print(f"Number of features: {features.shape[1]}")
-
     print(f"Target range: {target.min():.2f} - {target.max():.2f}")
 
     (
@@ -60,9 +59,7 @@ def main() -> None:
     print("\nTraining complete.")
 
     print(f"Training rows: {len(X_train):,}")
-
     print(f"Testing rows: {len(X_test):,}")
-
     print(f"Model saved to: {MODEL_PATH}")
 
 
