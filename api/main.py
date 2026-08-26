@@ -234,7 +234,20 @@ def predict():
                 }
             ), 400
 
-        prediction = float(predict_dataframe(input_data)[0])
+        raw_prediction = predict_dataframe(input_data)[0]
+
+        if isinstance(raw_prediction, str):
+            category_values = {
+                "Good": 25.0,
+                "Moderate": 75.0,
+                "Unhealthy for Sensitive Groups": 125.0,
+                "Unhealthy": 175.0,
+                "Very Unhealthy": 250.0,
+                "Hazardous": 400.0,
+            }
+            prediction = category_values.get(raw_prediction, 0.0)
+        else:
+            prediction = float(raw_prediction)
 
         prediction = max(
             0.0,
@@ -456,7 +469,20 @@ def predict_live():
         # 7. Predict
         # ----------------------------------------------------
 
-        prediction = float(predict_dataframe(input_data)[0])
+        raw_prediction = predict_dataframe(input_data)[0]
+
+        if isinstance(raw_prediction, str):
+            category_values = {
+                "Good": 25.0,
+                "Moderate": 75.0,
+                "Unhealthy for Sensitive Groups": 125.0,
+                "Unhealthy": 175.0,
+                "Very Unhealthy": 250.0,
+                "Hazardous": 400.0,
+            }
+            prediction = category_values.get(raw_prediction, 0.0)
+        else:
+            prediction = float(raw_prediction)
 
         prediction = max(
             0.0,
@@ -558,3 +584,4 @@ if __name__ == "__main__":
         port=5000,
         debug=True,
     )
+
