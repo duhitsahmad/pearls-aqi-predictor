@@ -3,3 +3,4 @@ requests==2.34.2
 gunicorn
 joblib
 flask
+scikit-learn
