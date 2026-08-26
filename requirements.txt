@@ -1,6 +1,7 @@
-streamlit==1.62.0
 requests==2.34.2
 gunicorn
 joblib
 flask
-scikit-learn
+scikit-learn==1.7.2
+pandas
+numpy
