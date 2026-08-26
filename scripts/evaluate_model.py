@@ -16,33 +16,55 @@ MODEL_PATH = PROJECT_ROOT / "models" / "local" / "aqi_next_hour.joblib"
 
 
 def main() -> None:
-    print("Loading dataset...")
+
+    print("=" * 60)
+    print("PEARLS AQI PREDICTOR - MODEL EVALUATION")
+    print("=" * 60)
+
+    print("\nLoading dataset...")
 
     df = pd.read_csv(DATA_PATH)
+
     clean = clean_data(df)
+
     features, target = create_features(clean)
 
     artifact = load_model(MODEL_PATH)
 
     model = artifact["model"]
+
     preprocessor = artifact["preprocessor"]
 
-    # Reproduce the same per-city chronological split used during training.
+    # --------------------------------------------------------
+    # Same chronological per-city split
+    # --------------------------------------------------------
+
     combined = features.copy()
+
     combined["_target"] = target.values
 
     train_parts = []
     test_parts = []
 
-    for _, city_data in combined.groupby("city", sort=False):
+    for _, city_data in combined.groupby(
+        "city",
+        sort=False,
+    ):
         split_index = int(len(city_data) * 0.8)
+
         train_parts.append(city_data.iloc[:split_index])
+
         test_parts.append(city_data.iloc[split_index:])
 
     test_data = pd.concat(test_parts).reset_index(drop=True)
 
     X_test = test_data.drop(columns="_target")
+
     y_test = test_data["_target"]
+
+    # --------------------------------------------------------
+    # Evaluate
+    # --------------------------------------------------------
 
     results = evaluate_model(
         model,
@@ -51,15 +73,16 @@ def main() -> None:
         y_test,
     )
 
-    print()
-    print(f"Accuracy: {results['accuracy']:.4f}")
-    print(f"Macro F1: {results['macro_f1']:.4f}")
-    print(f"Weighted F1: {results['weighted_f1']:.4f}")
-    print()
-    print("Classification report:")
-    print(results["classification_report"])
-    print("Confusion matrix:")
-    print(results["confusion_matrix"])
+    print("\nMODEL PERFORMANCE")
+    print("-" * 40)
+
+    print(f"RMSE : {results['rmse']:.4f}")
+
+    print(f"MAE  : {results['mae']:.4f}")
+
+    print(f"R²   : {results['r2']:.4f}")
+
+    print("-" * 40)
 
 
 if __name__ == "__main__":

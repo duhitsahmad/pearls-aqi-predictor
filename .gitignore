@@ -25,4 +25,7 @@ src/*.egg-info/
 
 
 # Streamlit
-.streamlit/secrets.toml
+.streamlit/secrets.tomlmodels/local/aqi_next_hour.joblib
+build/
+.github.zip
+models/local/shap_feature_importance.csv

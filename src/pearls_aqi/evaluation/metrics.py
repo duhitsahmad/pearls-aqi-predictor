@@ -1,12 +1,10 @@
-from pathlib import Path
-
-import joblib
+import numpy as np
 import pandas as pd
+
 from sklearn.metrics import (
-    accuracy_score,
-    classification_report,
-    confusion_matrix,
-    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score,
 )
 
 
@@ -16,30 +14,38 @@ def evaluate_model(
     X_test: pd.DataFrame,
     y_test: pd.Series,
 ) -> dict:
-    """Evaluate a trained AQI classification model."""
+    """
+    Evaluate an AQI regression model.
+
+    Required metrics:
+    - RMSE
+    - MAE
+    - R²
+    """
 
     X_test_processed = preprocessor.transform(X_test)
 
     predictions = model.predict(X_test_processed)
 
+    rmse = np.sqrt(
+        mean_squared_error(
+            y_test,
+            predictions,
+        )
+    )
+
+    mae = mean_absolute_error(
+        y_test,
+        predictions,
+    )
+
+    r2 = r2_score(
+        y_test,
+        predictions,
+    )
+
     return {
-        "accuracy": accuracy_score(y_test, predictions),
-        "macro_f1": f1_score(
-            y_test,
-            predictions,
-            average="macro",
-        ),
-        "weighted_f1": f1_score(
-            y_test,
-            predictions,
-            average="weighted",
-        ),
-        "classification_report": classification_report(
-            y_test,
-            predictions,
-        ),
-        "confusion_matrix": confusion_matrix(
-            y_test,
-            predictions,
-        ),
+        "rmse": float(rmse),
+        "mae": float(mae),
+        "r2": float(r2),
     }

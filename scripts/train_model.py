@@ -16,19 +16,37 @@ MODEL_PATH = PROJECT_ROOT / "models" / "local" / "aqi_next_hour.joblib"
 
 
 def main() -> None:
-    print("Loading dataset...")
+
+    print("=" * 60)
+    print("PEARLS AQI PREDICTOR - MODEL TRAINING")
+    print("=" * 60)
+
+    print("\nLoading dataset...")
 
     df = pd.read_csv(DATA_PATH)
 
-    print(f"Raw rows: {len(df)}")
+    print(f"Raw rows: {len(df):,}")
 
     clean = clean_data(df)
 
+    print(f"Clean rows: {len(clean):,}")
+
     features, target = create_features(clean)
 
-    print(f"Training samples available: {len(features)}")
+    print(f"Training samples: {len(features):,}")
 
-    model, preprocessor, X_train, X_test, y_train, y_test = train_model(
+    print(f"Number of features: {features.shape[1]}")
+
+    print(f"Target range: {target.min():.2f} - {target.max():.2f}")
+
+    (
+        model,
+        preprocessor,
+        X_train,
+        X_test,
+        y_train,
+        y_test,
+    ) = train_model(
         features,
         target,
     )
@@ -39,9 +57,12 @@ def main() -> None:
         MODEL_PATH,
     )
 
-    print()
-    print(f"Training rows: {len(X_train)}")
-    print(f"Testing rows: {len(X_test)}")
+    print("\nTraining complete.")
+
+    print(f"Training rows: {len(X_train):,}")
+
+    print(f"Testing rows: {len(X_test):,}")
+
     print(f"Model saved to: {MODEL_PATH}")
 
 
