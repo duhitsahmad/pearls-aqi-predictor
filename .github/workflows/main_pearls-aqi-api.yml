@@ -15,8 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
-
-        steps:
+           steps:
       - uses: actions/checkout@v4
         with:
           lfs: true
@@ -54,8 +53,7 @@ jobs:
     needs: build
     permissions:
       id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
-
+            contents: read
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
